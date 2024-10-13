@@ -1,7 +1,6 @@
-import { router, Stack } from 'expo-router';
+import { Link, router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
-
 export default function Home() {
   const [search, setSearch] = useState('');
 
@@ -27,6 +26,8 @@ export default function Home() {
           <Text className=" tracking-wider">Search</Text>
         </Pressable>
       </View>
+
+      <Link href={'/(auth)/login'}>Login page</Link>
     </>
   );
 }

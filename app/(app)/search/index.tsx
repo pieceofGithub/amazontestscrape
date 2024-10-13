@@ -1,5 +1,5 @@
 import { FlatList, Image, Linking, Pressable, Text, View } from 'react-native';
-import dummySearchData from '../../assets/search.json';
+import dummySearchData from '~/assets/search.json';
 
 const products = dummySearchData.slice(0, 20);
 
