@@ -1,16 +1,18 @@
 import dayjs from 'dayjs';
 import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, Text, TextInput, View, Alert } from 'react-native';
 import { useAuth } from '~/contexts/AuthContext';
 import { supabase } from '~/utils/supabase';
 
 export default function Home() {
   const [search, setSearch] = useState('');
-  const [history, setHistory] = useState([]); // history bir dizi olarak tanımlandı
+  const [history, setHistory] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false); // Added state for refreshing
   const { user } = useAuth();
 
   const fetchHistory = async () => {
+    setIsRefreshing(true); // Show refreshing spinner
     const { data, error } = await supabase
       .from('searches')
       .select('*')
@@ -19,16 +21,25 @@ export default function Home() {
 
     if (error) {
       console.error('Error fetching history:', error);
+      Alert.alert('Error', 'Failed to fetch search history.');
+    } else {
+      setHistory(data || []);
+    }
+    setIsRefreshing(false); // Hide refreshing spinner
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchHistory();
+    }
+  }, [user?.id]);
+
+  const performSearch = async () => {
+    if (!search.trim()) {
+      Alert.alert('Error', 'Please enter a search query.');
       return;
     }
 
-    setHistory(data || []); // Gelen veri varsa ayarlanıyor
-  };
-  useEffect(() => {
-    fetchHistory(); // Asenkron işlemi çağırıyoruz
-  }, [user.id]); // useEffect user.id'ye bağımlı
-
-  const performSearch = async () => {
     const { data, error } = await supabase
       .from('searches')
       .insert({
@@ -40,10 +51,8 @@ export default function Home() {
 
     if (error) {
       console.error('Error inserting search:', error);
-      return;
-    }
-
-    if (data) {
+      Alert.alert('Error', 'Failed to save the search.');
+    } else if (data) {
       router.push(`/search/${data.id}`);
     }
   };
@@ -63,7 +72,7 @@ export default function Home() {
         </View>
 
         <Pressable onPress={performSearch} className="rounded bg-teal-500 p-3 ">
-          <Text className=" tracking-wider">Search</Text>
+          <Text className="tracking-wider">Search</Text>
         </Pressable>
       </View>
 
@@ -71,8 +80,8 @@ export default function Home() {
         data={history}
         contentContainerClassName="p-3 gap-2"
         onRefresh={fetchHistory}
-        refreshing={false}
-        keyExtractor={(item) => item.id.toString()} // keyExtractor eklendi
+        refreshing={isRefreshing} // Linked to refreshing state
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View className="flex-row gap-4 border-b border-gray-200 p-2">
             <Text className="text-lg">{item.query}</Text>
