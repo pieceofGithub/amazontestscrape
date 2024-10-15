@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { router, Stack } from 'expo-router';
+import { Link, router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, Pressable, Text, TextInput, View, Alert } from 'react-native';
 import { useAuth } from '~/contexts/AuthContext';
@@ -83,10 +83,12 @@ export default function Home() {
         refreshing={isRefreshing} // Linked to refreshing state
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View className="flex-row gap-4 border-b border-gray-200 p-2">
-            <Text className="text-lg">{item.query}</Text>
-            <Text className="text-lg text-gray-700">{dayjs(item.created_at).fromNow()}</Text>
-          </View>
+          <Link href={`/search/${item.id}`} asChild>
+            <Pressable className="flex-row gap-4 border-b border-gray-200 p-2">
+              <Text className="text-lg">{item.query}</Text>
+              <Text className="text-lg text-gray-700">{dayjs(item.created_at).fromNow()}</Text>
+            </Pressable>
+          </Link>
         )}
       />
     </View>
