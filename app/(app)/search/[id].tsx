@@ -20,7 +20,7 @@ dayjs.extend(relativeTime);
 const products = dummySearchData.slice(0, 20);
 
 export default function SearchScreen() {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [search, setSearch] = useState();
   const [products, setProducts] = useState([]);
 
@@ -49,6 +49,28 @@ export default function SearchScreen() {
       });
   };
 
+  useEffect(() => {
+    // Listen to inserts
+    const subscription = supabase
+      .channel('supabase_realtime')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'searches' },
+        (payload) => {
+          console.log(JSON.stringify(payload.new, null, 2));
+          if (payload.new?.id === parseInt(id, 10)) {
+            setSearch(payload.new);
+            fetchProducts();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const startScraping = async () => {
     const { data, error } = await supabase.functions.invoke('scrape-start', {
       body: JSON.stringify({ record: search }),
@@ -75,7 +97,7 @@ export default function SearchScreen() {
           <Pressable
             onPress={() => Linking.openURL(item.url)}
             className="flex-row gap-3 bg-white p-3">
-            <Image source={{ uri: item.image }} className="size-20" />
+            <Image source={{ uri: item.image }} className="size-20" resizeMode="contain" />
             <Text className="flex-1" numberOfLines={4}>
               {item.name}
             </Text>
