@@ -1,12 +1,19 @@
-import { Session } from '@supabase/supabase-js';
+import { AuthSession, Session, User } from '@supabase/supabase-js';
 import React, { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { supabase } from '~/utils/supabase';
 
-// 1. Context'in oluşturulması
-export const AuthContext = createContext();
+type AuthContextType = {
+  session: AuthSession | null;
+  user: User | null;
+};
 
-export default function AuthProvider({ children }: PropsWithChildren) {
+const AuthContext = createContext<AuthContextType>({
+  session: null,
+  user: null,
+});
+
+export default function AuthContextProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
   const [isReady, setIsReady] = useState(false);
 
@@ -35,7 +42,9 @@ export default function AuthProvider({ children }: PropsWithChildren) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ session, user: session?.user || null }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

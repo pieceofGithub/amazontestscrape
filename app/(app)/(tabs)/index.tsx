@@ -3,15 +3,19 @@ import { Link, router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, Pressable, Text, TextInput, View, Alert } from 'react-native';
 import { useAuth } from '~/contexts/AuthContext';
+import { Tables } from '~/types/supabase';
 import { supabase } from '~/utils/supabase';
 
 export default function Home() {
   const [search, setSearch] = useState('');
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<Tables<'searches'>[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false); // Added state for refreshing
   const { user } = useAuth();
 
   const fetchHistory = async () => {
+    if (!user) {
+      return;
+    }
     setIsRefreshing(true); // Show refreshing spinner
     const { data, error } = await supabase
       .from('searches')
@@ -35,6 +39,9 @@ export default function Home() {
   }, [user?.id]);
 
   const performSearch = async () => {
+    if (!user) {
+      return;
+    }
     if (!search.trim()) {
       Alert.alert('Error', 'Please enter a search query.');
       return;
@@ -44,7 +51,7 @@ export default function Home() {
       .from('searches')
       .insert({
         query: search,
-        user_id: user.id,
+        user_id: user?.id,
       })
       .select()
       .single();

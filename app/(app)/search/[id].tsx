@@ -10,19 +10,17 @@ import {
   Text,
   View,
 } from 'react-native';
-import dummySearchData from '~/assets/search.json';
 import { supabase } from '~/utils/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { Tables } from '~/types/supabase';
 
 dayjs.extend(relativeTime);
 
-const products = dummySearchData.slice(0, 20);
-
 export default function SearchScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [search, setSearch] = useState();
-  const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState<Tables<'searches'> | null>(null);
+  const [products, setProducts] = useState<Tables<'products'>[]>([]);
 
   useEffect(() => {
     fetchSearch();
@@ -45,7 +43,7 @@ export default function SearchScreen() {
       .eq('search_id', id)
       .then(({ data, error }) => {
         console.log(data, error);
-        setProducts(data?.map((d) => d.products));
+        setProducts(data?.map((d) => d.products).filter((p) => !!p) as Tables<'products'>[]);
       });
   };
 
