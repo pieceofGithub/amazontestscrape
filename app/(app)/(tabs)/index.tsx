@@ -1,7 +1,9 @@
+import Octicons from '@expo/vector-icons/Octicons';
 import dayjs from 'dayjs';
 import { Link, router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, Pressable, Text, TextInput, View, Alert } from 'react-native';
+import SearchListItem from '~/components/SearchListItem';
 import { useAuth } from '~/contexts/AuthContext';
 import { Tables } from '~/types/supabase';
 import { supabase } from '~/utils/supabase';
@@ -89,14 +91,7 @@ export default function Home() {
         onRefresh={fetchHistory}
         refreshing={isRefreshing} // Linked to refreshing state
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <Link href={`/search/${item.id}`} asChild>
-            <Pressable className="flex-row gap-4 border-b border-gray-200 p-2">
-              <Text className="text-lg">{item.query}</Text>
-              <Text className="text-lg text-gray-700">{dayjs(item.created_at).fromNow()}</Text>
-            </Pressable>
-          </Link>
-        )}
+        renderItem={({ item }) => <SearchListItem search={item} />}
       />
     </View>
   );
