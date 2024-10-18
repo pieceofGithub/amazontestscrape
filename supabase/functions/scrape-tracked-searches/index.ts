@@ -34,8 +34,8 @@ Deno.serve(async (req) => {
 
   --- Remote request
 
-  curl -i --location --request POST 'https://ttxvnyflpzstmpdrbtnz.supabase.co/functions/v1/scrape-tracked-searches' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0eHZueWZscHpzdG1wZHJidG56Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNzQ1OTE0MCwiZXhwIjoyMDQzMDM1MTQwfQ.O108uUKwL6SoRawpDtdfPcli9yn84XAKgWjsQaucTro' \
+  curl -i --location --request POST 'https://<remotesupabaseprojectid>.supabase.co/functions/v1/scrape-tracked-searches' \
+    --header 'Authorization: Bearer anon token' \
     --header 'Content-Type: application/json'
 
 */
